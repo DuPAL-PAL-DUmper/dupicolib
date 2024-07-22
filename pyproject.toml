@@ -21,7 +21,8 @@ dependencies = [
 ]
 
 [tool.setuptools]
-py-modules = [ "dupicolib" ]
+packages = [ "dupicolib" ]
+py-modules = [ "__init__" ]
 
 [project.urls]
 repository = "https://github.com/hkzlab/dupicolib"
