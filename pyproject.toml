@@ -20,5 +20,8 @@ dependencies = [
     "pyserial ~= 3.5",
 ]
 
+[tool.setuptools]
+py-modules = [ "dupicolib" ]
+
 [project.urls]
 repository = "https://github.com/hkzlab/dupicolib"
