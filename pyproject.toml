@@ -25,4 +25,4 @@ packages = [ "dupicolib" ]
 py-modules = [ "__init__" ]
 
 [project.urls]
-repository = "https://github.com/hkzlab/dupicolib"
+repository = "https://github.com/DuPAL-PAL-DUmper/dupicolib"
