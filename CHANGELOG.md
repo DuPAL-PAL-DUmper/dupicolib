@@ -1,7 +1,7 @@
 # Changelog
 Changelog for dupicolib
 
-## [0.2.0] - ????-??-??
+## [0.2.0] - 2024-07-29
 
 ### Added
 - Support for multiple pin maps depending on model type
