@@ -1,6 +1,7 @@
 """This module contains higher-level code for board interfacing"""
 
-from typing import Dict, List, Tuple, final
+from typing import Dict, final
+import struct
 from enum import Enum
 
 import serial
@@ -9,12 +10,11 @@ from dupicolib.board_utilities import BoardUtilities
 from dupicolib.board_commands import BoardCommands
 
 class CommandCode(Enum):
-    EXTENDED_WRITE = 'E'
-    WRITE = 'W'
-    READ = 'R'
-    RESET = 'K'
-    POWER = 'P'
-    TEST = 'T'
+    WRITE = 0
+    READ = 1
+    RESET = 2
+    POWER = 3
+    TEST = 5
 
 @final
 class M3BoardCommands(BoardCommands):
@@ -47,10 +47,10 @@ class M3BoardCommands(BoardCommands):
         Returns:
             bool | None: True if test passed correctly, False otherwise
         """        
-        res: str | None = BoardUtilities.send_command(ser, CommandCode.TEST.value)
+        res: bytes | None = BoardUtilities.send_binary_command(ser, bytes([CommandCode.TEST.value]), 1)
 
-        if res and len(res) == 3 and res[0] == CommandCode.TEST.value:
-            return int(res[2:]) == 1
+        if res is not None:
+            return res[0] == 1
         else:
             return None
         
@@ -64,11 +64,11 @@ class M3BoardCommands(BoardCommands):
 
         Returns:
             bool | None: True if power was applied, False otherwise, None in case we did not read the response correctly
-        """        
-        res: str | None = BoardUtilities.send_command(ser, CommandCode.POWER.value, ['1' if state else '0'])
+        """
+        res: bytes | None = BoardUtilities.send_binary_command(ser, bytes([CommandCode.POWER.value, 1 if state else 0]), 1)
 
-        if res and len(res) == 3 and res[0] == CommandCode.POWER.value:
-            return int(res[2:]) == 1
+        if res is not None:
+            return res[0] == 1
         else:
             return None
         
@@ -82,36 +82,13 @@ class M3BoardCommands(BoardCommands):
 
         Returns:
             int | None: The value we read back from the pins, or None in case of parsing issues
-        """        
-        # Format the parameter as a 16 chars hex string
-        res: str | None = BoardUtilities.send_command(ser, CommandCode.WRITE.value, [f'{pins:0{16}X}'])
+        """                
+        res: bytes | None = BoardUtilities.send_binary_command(ser, bytes([CommandCode.WRITE.value, *struct.pack('<Q', pins)]), 8)
 
-        if res and len(res) == 18 and res[0] == CommandCode.WRITE.value:
-            return int(res[2:], 16)
+        if res is not None:
+            return struct.unpack('<Q', res)[0]
         else:
             return None
-        
-    @staticmethod
-    def write_pins_extended(ser: serial.Serial, pins_list: Tuple[int]) -> List[int] | None:
-        """Write pins extended, to send multiple write commands with a single string
-
-        Args:
-            ser (serial.Serial): serial port on which to send the command
-            pins_list (Tuple[int]): tuple of writes to be performed, already remapped
-
-        Returns:
-            List[int] | None: List of responses for every requested write, or None if the request failed
-        """        
-        wre_responses: List[int] = []
-        ser.write(BoardUtilities.build_command(CommandCode.EXTENDED_WRITE.value, [f'{entry:0{16}X}' for entry in pins_list]))
-
-        for _ in range(0, len(pins_list)):
-            response = BoardUtilities.read_response_string(ser)
-            if response is None or len(response) != 18 or response[0] != CommandCode.WRITE.value: # Something went wrong...
-                return None
-            wre_responses.append(int(response[2:], 16))
-
-        return wre_responses
         
     @staticmethod
     def read_pins(ser: serial.Serial) -> int | None:
@@ -123,10 +100,10 @@ class M3BoardCommands(BoardCommands):
         Returns:
             int | None: The value we read back from the pins, or None in case of parsing issues
         """        
-        res: str | None = BoardUtilities.send_command(ser, CommandCode.READ.value)
+        res: bytes | None = BoardUtilities.send_binary_command(ser, bytes([CommandCode.READ.value]), 8)
 
-        if res and len(res) == 18 and res[0] == CommandCode.READ.value:
-            return int(res[2:], 16)
+        if res is not None:
+            return struct.unpack('<Q', res)[0]
         else:
             return None
         

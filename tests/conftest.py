@@ -25,20 +25,20 @@ def invalid_pin_list() -> list[int]:
 # Fixtures for semver checking
 @pytest.fixture
 def valid_semver_complete() -> str:
-    return "0.1.2-abc+bcd"
+    return '0.1.2-abc+bcd'
 
 @pytest.fixture
 def valid_semver_limited() -> str:
-    return "0.1.2"
+    return '0.1.2'
 
 @pytest.fixture
 def invalid_semver_a() -> str:
-    return "1.2-abc+234"
+    return '1.2-abc+234'
 
 @pytest.fixture
 def invalid_semver_b() -> str:
-    return "0.1.2-+234"
+    return '0.1.2-+234'
 
 @pytest.fixture
 def invalid_semver_c() -> str:
-    return "0.1.2.0-+234"
+    return '0.1.2.0-+234'

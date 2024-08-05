@@ -1,6 +1,14 @@
 # Changelog
 Changelog for dupicolib
 
+## [0.3.0] - 2024-08-04
+### Changed
+- Make use of the binary protocol only
+- Use DTR when retrying the connection to the board
+
+### Removed
+- Removed support for text based protocol
+
 ## [0.2.0] - 2024-07-29
 
 ### Added

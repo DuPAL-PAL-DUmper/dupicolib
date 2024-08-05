@@ -9,8 +9,8 @@ import serial
 from dupicolib.board_utilities import BoardUtilities
 
 class CommandCode(Enum):
-    MODEL = 'M'
-    VERSION = 'V'
+    MODEL = 4
+    VERSION = 6
 
 class BoardCommands(ABC):
     # Model and version command need to be common to every device, so we can gather the information
@@ -25,10 +25,10 @@ class BoardCommands(ABC):
         Returns:
             int | None: Return the model number, or None if the response cannot be read correctly
         """        
-        res: str | None = BoardUtilities.send_command(ser, CommandCode.MODEL.value)
+        res: bytes | None = BoardUtilities.send_binary_command(ser, bytes([CommandCode.MODEL.value]), 1)
 
-        if res and len(res) >= 3 and res[0] == CommandCode.MODEL.value:
-            return int(res[2:])
+        if res is not None:
+            return res[0]
         else:
             return None
 
@@ -42,10 +42,10 @@ class BoardCommands(ABC):
         Returns:
             ser | None: Return the version number of the firmware, or None if the response cannot be read correctly
         """        
-        res: str | None = BoardUtilities.send_command(ser, CommandCode.VERSION.value)
+        res: bytes | None = BoardUtilities.send_binary_command(ser, bytes([CommandCode.VERSION.value]), 10)
 
-        if res and len(res) >= 3 and res[0] == CommandCode.VERSION.value:
-            return res[2:]
+        if res is not None:
+            return res.decode(encoding='ASCII').rstrip('\x00').strip() # Clear the terminating NULLs
         else:
             return None
 
@@ -84,19 +84,6 @@ class BoardCommands(ABC):
 
         Returns:
             int | None: The value we read back from the pins, or None in case of parsing issues
-        """        
-        pass
-        
-    @staticmethod
-    def write_pins_extended(ser: serial.Serial, pins_list: Tuple[int]) -> List[int] | None:
-        """Write pins extended, to send multiple write commands with a single string
-
-        Args:
-            ser (serial.Serial): serial port on which to send the command
-            pins_list (Tuple[int]): tuple of writes to be performed, already remapped
-
-        Returns:
-            List[int] | None: List of responses for every requested write, or None if the request failed
         """        
         pass
 
