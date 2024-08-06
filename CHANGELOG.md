@@ -1,6 +1,10 @@
 # Changelog
 Changelog for dupicolib
 
+## [0.3.1] - 2024-08-06
+### Changed
+- Reinitialize connection to the board (via DTR) only after the first failed connection attempt
+
 ## [0.3.0] - 2024-08-04
 ### Changed
 - Make use of the binary protocol only

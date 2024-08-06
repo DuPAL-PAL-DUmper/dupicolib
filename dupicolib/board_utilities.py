@@ -25,7 +25,17 @@ class BoardUtilities:
 
     @classmethod
     def _connection_string_loop_check(cls, ser: serial.Serial, retries: int) -> bool:
+        # We'll try to read the string right away, before toggling DTR,
+        # because we expect that this code is called somewhat right after the 
+        # serial port is opened, and thus already providing a DTR toggle.
+
         for i in range(1, retries + 1):
+            response = ser.readline(cls._MAX_RESPONSE_SIZE).decode(cls._ENCODING).strip()
+            if response and response == CommandTokens.BOARD_ENABLED.value:
+                cls._LOGGER.debug(f'Connection try {i} succeeded!')
+                return True
+            cls._LOGGER.debug(f'Connection try {i} failed, got "{response}"!')     
+
             # Reset the connection to the board
             ser.dtr = False
             # Clear everything we have up to now
@@ -33,12 +43,6 @@ class BoardUtilities:
             time.sleep(0.5)
             ser.dtr = True
             time.sleep(0.5)
-
-            response = ser.readline(cls._MAX_RESPONSE_SIZE).decode(cls._ENCODING).strip()
-            if response and response == CommandTokens.BOARD_ENABLED.value:
-                cls._LOGGER.debug(f'Connection try {i} succeeded!')
-                return True
-            cls._LOGGER.debug(f'Connection try {i} failed, got "{response}"!')     
 
         return False   
 
