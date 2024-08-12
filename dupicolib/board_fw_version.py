@@ -21,7 +21,7 @@ class FWVersionDict(TypedDict):
 
 @final
 class FwVersionTools:
-    _REGEX: Pattern = re.compile(f'^(?P<{FWVersionKeys.MAJOR.value}>0|[1-9]\d*)\.(?P<{FWVersionKeys.MINOR.value}>0|[1-9]\d*)\.(?P<{FWVersionKeys.PATCH.value}>0|[1-9]\d*)(?:-(?P<{FWVersionKeys.PREREL.value}>(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+(?P<{FWVersionKeys.BLDMETA.value}>[0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$')
+    _REGEX: Pattern = re.compile(f'^(?P<{FWVersionKeys.MAJOR.value}>0|[1-9]\\d*)\\.(?P<{FWVersionKeys.MINOR.value}>0|[1-9]\\d*)\\.(?P<{FWVersionKeys.PATCH.value}>0|[1-9]\\d*)(?:-(?P<{FWVersionKeys.PREREL.value}>(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+(?P<{FWVersionKeys.BLDMETA.value}>[0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$')
 
     @classmethod
     def parse(cls, ver: str) -> FWVersionDict:
