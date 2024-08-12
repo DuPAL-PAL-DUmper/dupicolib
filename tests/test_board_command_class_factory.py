@@ -7,7 +7,7 @@ from typing import Type
 sys.path.insert(0, '.') # Make VSCode happy...
 
 from dupicolib.board_commands_interface import BoardCommandsInterface
-from dupicolib.board_fw_version import FWVersionDict, FwVersionTools, FWVersionKeys
+from dupicolib.board_fw_version import FWVersionDict, FwVersionTools
 from dupicolib.board_command_class_factory import BoardCommandClassFactory
 from dupicolib.board_interfaces.m3_board_commands import M3BoardCommands
 import pytest
