@@ -21,7 +21,7 @@ dependencies = [
 ]
 
 [tool.setuptools]
-packages = [ "dupicolib" ]
+packages = [ "dupicolib", "dupicolib.board_interfaces" ]
 py-modules = [ "__init__" ]
 
 [project.urls]
