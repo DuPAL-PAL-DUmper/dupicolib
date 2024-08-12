@@ -7,7 +7,7 @@ from enum import Enum
 import serial
 
 from dupicolib.board_utilities import BoardUtilities
-from dupicolib.board_commands import BoardCommands
+from dupicolib.hardware_board_commands import HardwareBoardCommands
 
 class CommandCode(Enum):
     WRITE = 0
@@ -17,7 +17,7 @@ class CommandCode(Enum):
     TEST = 5
 
 @final
-class M3BoardCommands(BoardCommands):
+class M3BoardCommands(HardwareBoardCommands):
     # The following map is used to associate a pin number (e.g. pin 1 or 10) on the socket
     # with the corresponding bit index used to access said pin by the dupico.
     # Negative numbers will be ignored in the mapping
@@ -56,12 +56,12 @@ class M3BoardCommands(BoardCommands):
             return None
         
     @staticmethod
-    def set_power(ser: serial.Serial, state: bool) -> bool | None:
+    def set_power(state:bool, ser: serial.Serial) -> bool | None:
         """Enable or disable the power on the socket VCC
 
         Args:
-            ser (serial.Serial): serial port on which to send the command
             state (bool): True if we wish power applied, False otherwise
+            ser (serial.Serial): serial port on which to send the command
 
         Returns:
             bool | None: True if power was applied, False otherwise, None in case we did not read the response correctly
@@ -74,12 +74,12 @@ class M3BoardCommands(BoardCommands):
             return None
         
     @staticmethod
-    def write_pins(ser: serial.Serial, pins: int) -> int | None:
+    def write_pins(pins: int, ser: serial.Serial) -> int | None:
         """Toggle the specified pins and read their status back
 
         Args:
-            ser (serial.Serial): serial port on which to send the command
             pins (int): value that the pins will be set to. A bit set to '1' means that the pin will be pulled high
+            ser (serial.Serial): serial port on which to send the command
 
         Returns:
             int | None: The value we read back from the pins, or None in case of parsing issues

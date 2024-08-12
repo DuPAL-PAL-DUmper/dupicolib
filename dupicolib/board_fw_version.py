@@ -29,4 +29,4 @@ class FwVersionTools:
         if match is None:
             raise ValueError(f'Version string {ver} is not in correct format')
         
-        return match.groupdict(default=None)
+        return match.groupdict(default=None) # type: ignore
