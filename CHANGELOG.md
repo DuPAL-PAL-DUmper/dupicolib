@@ -1,6 +1,13 @@
 # Changelog
 Changelog for dupicolib
 
+## [0.4.0] - 2024-08-12
+### Changed
+- Breaking change, added another layer of abstraction for board command classes, to allow easier virtual commands implementation
+
+### Fixed
+- Escaping in FW version check is fixed
+
 ## [0.3.2] - 2024-08-12
 ### Added
 - Board pin remapping function can now ignore pins, if specified in their translation map, mapping them to negative values
