@@ -20,6 +20,7 @@ class CommandCode(Enum):
 class M3BoardCommands(BoardCommands):
     # The following map is used to associate a pin number (e.g. pin 1 or 10) on the socket
     # with the corresponding bit index used to access said pin by the dupico.
+    # Negative numbers will be ignored in the mapping
     PIN_NUMBER_TO_INDEX_MAP: Dict[int, int] = {
         1: 0, 2: 1, 3: 2,
         4: 3, 5: 4, 6: 5,
@@ -34,7 +35,7 @@ class M3BoardCommands(BoardCommands):
         32: 30, 33: 31, 34: 32,
         35: 33, 36: 34, 37: 35,
         38: 36, 39: 37, 40: 38,
-        41: 39
+        41: 39, 21: -1, 42: -1
     } 
 
     @staticmethod

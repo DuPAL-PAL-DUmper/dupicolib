@@ -18,9 +18,14 @@ def pin_list_18bit() -> list[int]:
     return [12, 11, 10, 9, 8, 7, 6, 5, 27, 26, 23, 25, 4, 28, 29, 3, 2, 30]
 
 @pytest.fixture
-def invalid_pin_list() -> list[int]:
-    # Invalid pin list that includes pin 21 and 42 (GND and VCC on model 3)
+def ignored_pin_list() -> list[int]:
+    # Pin list that includes pin 21 and 42 (GND and VCC on model 3) that should be ignored by the remapper
     return [12, 11, 42, 9, 8, 7, 6, 5, 27, 26, 23, 25, 4, 28, 29, 3, 2, 21]
+
+@pytest.fixture
+def invalid_pin_list() -> list[int]:
+    # Invalid pin list that includes pin 43 and 44
+    return [12, 11, 9, 8, 7, 6, 5, 27, 26, 23, 25, 4, 28, 29, 3, 2, 43, 44]
 
 # Fixtures for semver checking
 @pytest.fixture

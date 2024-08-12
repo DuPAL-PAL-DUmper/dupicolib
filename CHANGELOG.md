@@ -1,6 +1,10 @@
 # Changelog
 Changelog for dupicolib
 
+## [0.3.2] - 2024-08-12
+### Added
+- Board pin remapping function can now ignore pins, if specified in their translation map, mapping them to negative values
+
 ## [0.3.1] - 2024-08-06
 ### Changed
 - Reinitialize connection to the board (via DTR) only after the first failed connection attempt

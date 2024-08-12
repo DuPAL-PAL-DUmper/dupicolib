@@ -120,8 +120,9 @@ class BoardCommands(ABC):
         ret_val: int = 0
 
         for idx, pin in enumerate(pins):
-            if value & (1 << idx):
-                ret_val = ret_val | (1 << map[pin])
+            pin_pos: int = map[pin]
+            if (value & (1 << idx)) and (pin_pos >= 0):
+                ret_val = ret_val | (1 << pin_pos)
 
         return ret_val
     
@@ -147,7 +148,8 @@ class BoardCommands(ABC):
         ret_val: int = 0
 
         for idx, pin in enumerate(pins):
-            if value & (1 << map[pin]):
+            pin_pos: int = map[pin]
+            if (pin_pos >= 0) and (value & (1 << pin_pos)):
                 ret_val = ret_val | (1 << idx)
 
         return ret_val

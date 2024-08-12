@@ -28,6 +28,10 @@ def test_map_pins_to_value_18bit_m3(pin_list_18bit):
     assert M3BoardCommands.map_pins_to_value(pins=pin_list_18bit, value=0x1FA00FFE) == 0x3FFFF
     assert M3BoardCommands.map_pins_to_value(pins=pin_list_18bit, value=0x7000A22) == 0x12345
 
+def test_ignored_pins_exc(ignored_pin_list):
+    """Tests that no exception is raised if we use ignored pins"""
+    assert M3BoardCommands.map_pins_to_value(pins=ignored_pin_list, value=0) == 0
+
 def test_invalid_pins_exc(invalid_pin_list):
     """Tests that an exception is raised if we attempt to use a pin not specified in the map"""
     with pytest.raises(Exception):
