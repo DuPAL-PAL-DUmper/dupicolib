@@ -15,6 +15,7 @@ class CommandCode(Enum):
     RESET = 2
     POWER = 3
     TEST = 5
+    OSC_DET = 8
 
 @final
 class M3BoardCommands(HardwareBoardCommands):
@@ -108,6 +109,24 @@ class M3BoardCommands(HardwareBoardCommands):
         else:
             return None
         
+    @staticmethod
+    def detect_osc_pins(reads: int, ser: serial.Serial) -> int | None:
+        """Repeat reads a number of times and reports which pins changed their state in at least one of the reads
+
+        Args:
+            tries (int): Number of reads to perform
+            ser (serial.Serial | None, optional): serial port on which to send the command. Defaults to None.
+
+        Returns:
+            int | None: A bitmask with bits set to 1 for pins that were detected as flipping
+        """        
+        res: bytes | None = BoardUtilities.send_binary_command(ser, bytes([CommandCode.OSC_DET.value, reads & 0xFF]), 8)
+
+        if res is not None:
+            return struct.unpack('<Q', res)[0]
+        else:
+            return None
+            
     @classmethod
     def map_value_to_pins(cls, pins: list[int], value: int) -> int:
         return cls._map_value_to_pins(cls.PIN_NUMBER_TO_INDEX_MAP, pins, value)

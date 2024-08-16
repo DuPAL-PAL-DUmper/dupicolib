@@ -1,6 +1,10 @@
 # Changelog
 Changelog for dupicolib
 
+## [0.4.1] - 2024-08-15
+### Added
+- Support for OSC_DET command on the dupico
+
 ## [0.4.0] - 2024-08-12
 ### Changed
 - Breaking change, added another layer of abstraction for board command classes, to allow easier virtual commands implementation

@@ -81,6 +81,19 @@ class BoardCommandsInterface(ABC):
             int | None: The value we read back from the pins, or None in case of parsing issues
         """        
         raise NotImplementedError()
+    
+    @staticmethod
+    def detect_osc_pins(reads: int, ser: serial.Serial | None = None) -> int | None:
+        """Repeat reads a number of times and reports which pins changed their state in at least one of the reads
+
+        Args:
+            tries (int): Number of reads to perform
+            ser (serial.Serial | None, optional): serial port on which to send the command. Defaults to None.
+
+        Returns:
+            int | None: A bitmask with bits set to 1 for pins that were detected as flipping
+        """        
+        raise NotImplementedError()
 
     @classmethod
     def map_value_to_pins(cls, pins: list[int], value: int) -> int:
