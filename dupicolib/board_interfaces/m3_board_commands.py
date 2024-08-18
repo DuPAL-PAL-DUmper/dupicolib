@@ -22,8 +22,7 @@ class M3BoardCommands(HardwareBoardCommands):
     # The following map is used to associate a pin number (e.g. pin 1 or 10) on the socket
     # with the corresponding bit index used to access said pin by the dupico.
     # Negative numbers will be ignored in the mapping
-    PIN_NUMBER_TO_INDEX_MAP: Dict[int, int] = {
-        0: -1, # Indicates a not connected pin
+    _PIN_NUMBER_TO_INDEX_MAP: Dict[int, int] = {
         1: 0, 2: 1, 3: 2,
         4: 3, 5: 4, 6: 5,
         7: 6, 8: 7, 9: 8,
@@ -37,9 +36,8 @@ class M3BoardCommands(HardwareBoardCommands):
         32: 30, 33: 31, 34: 32,
         35: 33, 36: 34, 37: 35,
         38: 36, 39: 37, 40: 38,
-        41: 39,
-        21: -1, 42: -1 # Two power pins
-    } 
+        41: 39
+    } | HardwareBoardCommands._get_basic_index_map() # Merge the pin mappings from the superclass
 
     @staticmethod
     def test_board(ser: serial.Serial) -> bool | None:
@@ -131,8 +129,8 @@ class M3BoardCommands(HardwareBoardCommands):
             
     @classmethod
     def map_value_to_pins(cls, pins: list[int], value: int) -> int:
-        return cls._map_value_to_pins(cls.PIN_NUMBER_TO_INDEX_MAP, pins, value)
+        return cls._map_value_to_pins(cls._PIN_NUMBER_TO_INDEX_MAP, pins, value)
     
     @classmethod
     def map_pins_to_value(cls, pins: list[int], value: int) -> int:
-        return cls._map_pins_to_value(cls.PIN_NUMBER_TO_INDEX_MAP, pins, value)
+        return cls._map_pins_to_value(cls._PIN_NUMBER_TO_INDEX_MAP, pins, value)

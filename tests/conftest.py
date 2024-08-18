@@ -20,7 +20,7 @@ def pin_list_18bit() -> list[int]:
 @pytest.fixture
 def ignored_pin_list() -> list[int]:
     # Pin list that includes pin 21 and 42 (GND and VCC on model 3) that should be ignored by the remapper
-    return [12, 11, 42, 9, 8, 7, 6, 5, 27, 26, 23, 25, 4, 28, 29, 3, 2, 21]
+    return [12, 11, 42, 9, 8, 7, 6, 5, 27, 26, 23, 25, 4, 28, 29, 3, 2, 21, 0]
 
 @pytest.fixture
 def invalid_pin_list() -> list[int]:

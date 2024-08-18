@@ -6,6 +6,11 @@ from abc import ABC
 import serial
 
 class BoardCommandsInterface(ABC):
+    _BASIC_PIN_NUMBER_TO_INDEX_MAP: Dict[int, int] = {
+        0: -1, # Indicates a not connected pin
+        21: -1, 42: -1 # Two power pins
+    } 
+
     # Model and version command need to be common to every device, so we can gather the information
     # needed to distinguish them from one another
     @staticmethod
@@ -149,3 +154,7 @@ class BoardCommandsInterface(ABC):
                 ret_val = ret_val | (1 << idx)
 
         return ret_val
+    
+    @classmethod
+    def _get_basic_index_map(cls) -> dict[int, int]:
+        return cls._BASIC_PIN_NUMBER_TO_INDEX_MAP
