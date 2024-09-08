@@ -1,6 +1,6 @@
 """This module is an abstract class to set the shape for classes providing higher-level interface to the boards"""
 
-from typing import Dict
+from typing import Callable, Dict
 from abc import ABC
 
 import serial
@@ -97,6 +97,22 @@ class BoardCommandsInterface(ABC):
 
         Returns:
             int | None: A bitmask with bits set to 1 for pins that were detected as flipping
+        """        
+        raise NotImplementedError()
+    
+    @classmethod
+    def cxfer_read(cls, address_pins: list[int], data_pins: list[int], hi_pins: list[int], update_callback: Callable[[int], None] | None, ser: serial.Serial | None = None) -> bytes | None:
+        """Uses the "Clever Transfer" mode on the dupico to read the content of an IC.
+
+        Args:
+            address_pins (list[int]): List of the pins composing the address, in order, starting from A0, and already mapped on the dupico socket
+            data_pins (list[int]): List of the pins composing the data, in order, starting from D0, and already mapped on the dupico socket
+            hi_pins (list[int]): List of the pins that must be always set to a high logic level during the transfer.
+            update_callback (Callable[[int], None] | None): A callback that will receive periodic updates of bytes read.
+            ser (serial.Serial | None, optional): Serial port on which to send the commands. Defaults to None.
+
+        Returns:
+            bytes | None: A bytes object containing the data read from the IC
         """        
         raise NotImplementedError()
 

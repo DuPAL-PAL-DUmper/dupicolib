@@ -1,13 +1,17 @@
 """This module contains higher-level code for board interfacing"""
 
-from typing import Dict, final
+from typing import Callable, Dict, final
 import struct
 from enum import Enum
 
 import serial
 
+from dupicolib.board_interfaces.special_modes.cxfer import CXFERTransfer
 from dupicolib.board_utilities import BoardUtilities
 from dupicolib.hardware_board_commands import HardwareBoardCommands
+import dupicolib.utils as DPUtils
+
+_CXFER_SHIFT_BLOCK_SIZE: int = 16
 
 class CommandCode(Enum):
     WRITE = 0
@@ -16,6 +20,8 @@ class CommandCode(Enum):
     POWER = 3
     TEST = 5
     OSC_DET = 8
+    CXFER = 9
+
 
 @final
 class M3BoardCommands(HardwareBoardCommands):
@@ -126,6 +132,61 @@ class M3BoardCommands(HardwareBoardCommands):
             return struct.unpack('<Q', res)[0]
         else:
             return None
+        
+    @classmethod
+    def cxfer_read(cls, address_pins: list[int], data_pins: list[int], hi_pins: list[int], update_callback: Callable[[int], None] | None, ser: serial.Serial) -> bytes | None:
+        address_shift_map: list[int] = []
+        data_shift_map: list[int] = []
+        hi_pin_mask: int
+        data_pin_mask: int
+        
+        for pin in address_pins:
+            address_shift_map.append(cls._PIN_NUMBER_TO_INDEX_MAP[pin])
+
+        for pin in data_pins:
+            data_shift_map.append(cls._PIN_NUMBER_TO_INDEX_MAP[pin])
+
+        hi_pin_mask = cls.map_value_to_pins(hi_pins, 0xFFFFFFFFFFFFFFFF)
+        data_pin_mask = cls.map_value_to_pins(data_pins, 0xFFFFFFFFFFFFFFFF)
+
+        # Clear the configuration for CXFER on the board
+        BoardUtilities.send_binary_command(ser, bytes([CommandCode.CXFER.value, CXFERTransfer.CXFERSubCommand.CLEAR.value, *([0] * 16)]), 1)
+
+        # Set the address shift map
+        for idx, addr_chunk in enumerate(DPUtils.iter_grouper(address_shift_map, _CXFER_SHIFT_BLOCK_SIZE, 0)):
+            BoardUtilities.send_binary_command(ser, bytes([CommandCode.CXFER.value, CXFERTransfer.CXFERSubCommand.SET_ADDR_MAP_0.value + idx, *struct.pack(f'{len(addr_chunk)}B', *addr_chunk)]), 1)
+
+        # Set the data shift map
+        for idx, data_chunk in enumerate(DPUtils.iter_grouper(data_shift_map, _CXFER_SHIFT_BLOCK_SIZE, 0)):
+            BoardUtilities.send_binary_command(ser, bytes([CommandCode.CXFER.value, CXFERTransfer.CXFERSubCommand.SET_DATA_MAP_0.value + idx, *struct.pack(f'{len(data_chunk)}B', *data_chunk)]), 1)
+
+        # Set the hi-out mask
+        BoardUtilities.send_binary_command(ser, bytes([CommandCode.CXFER.value, CXFERTransfer.CXFERSubCommand.SET_HI_OUT_MASK.value, *struct.pack('<Q', hi_pin_mask), *([0] * 8)]), 1)
+
+        # Set the data mask
+        BoardUtilities.send_binary_command(ser, bytes([CommandCode.CXFER.value, CXFERTransfer.CXFERSubCommand.SET_DATA_MASK.value, *struct.pack('<Q', data_pin_mask), *([0] * 8)]), 1)
+
+        # Send address width
+        BoardUtilities.send_binary_command(ser, bytes([CommandCode.CXFER.value, CXFERTransfer.CXFERSubCommand.SET_ADDR_WIDTH.value, *struct.pack(f'B', len(address_pins)), *([0] * 15)]), 1)
+
+        # Send data width
+        BoardUtilities.send_binary_command(ser, bytes([CommandCode.CXFER.value, CXFERTransfer.CXFERSubCommand.SET_DATA_WIDTH.value, *struct.pack(f'B', len(data_pins)), *([0] * 15)]), 1)
+
+        data: bytes | None = CXFERTransfer.read(CommandCode.CXFER.value, ser, update_callback)
+
+        # Clear the buffer from the last response code from the dupico, and the checksum (command + parameter + checksum = 3 bytes)
+        resp_data: bytes = ser.read(3)
+
+        if (resp_size := len(resp_data)) != 3:
+            raise IOError(f'Response from transfer command is too short: {resp_size}!')
+        else:
+            if resp_data[0] != CommandCode.CXFER.value | BoardUtilities.BINARY_COMMAND_RESPONSE_FLAG:
+                raise IOError(f'Read wrong response type after execution of CXFER: {resp_data[0]:0{2}X}')
+            elif BoardUtilities.command_checksum_calculator(resp_data):
+                raise IOError('Wrong checksum for CXFER read command.')
+
+        return data
+    
             
     @classmethod
     def map_value_to_pins(cls, pins: list[int], value: int) -> int:

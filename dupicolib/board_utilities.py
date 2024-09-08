@@ -15,11 +15,11 @@ class BoardUtilities:
     """
     This class contains basic utilities for board access.
     """
+    
+    BINARY_COMMAND_RESPONSE_FLAG: int = 0x80
 
     _MAX_RESPONSE_SIZE: int = 32
     _ENCODING: str = 'ASCII'
-
-    _BINARY_COMMAND_RESPONSE_FLAG: int = 0x80
 
     _LOGGER = logging.getLogger(__name__)
 
@@ -73,12 +73,17 @@ class BoardUtilities:
         return False
 
     @classmethod
-    def send_binary_command(cls, ser: serial.Serial, cmd: bytes, resp_data_len: int) -> bytes | None:
-        chks: int = cls._checksum_calculator(cmd)
+    def send_binary_command(cls, ser: serial.Serial, cmd: bytes, resp_data_len: int = 0) -> bytes | None:
+        chks: int = cls.command_checksum_calculator(cmd)
 
         ser.write(bytes([*cmd, chks]))
 
-        expected_resp = cmd[0] | cls._BINARY_COMMAND_RESPONSE_FLAG
+        # In this case, we just send the command and ignore any response, that we expect to be handled by the caller
+        if resp_data_len <= 0:
+            cls._LOGGER.debug(f'Sending command {cmd}, ignoring any response.')
+            return None
+
+        expected_resp = cmd[0] | cls.BINARY_COMMAND_RESPONSE_FLAG
         resp_code: bytes = ser.read(1)
         if (len(resp_code) != 1 or resp_code[0] != expected_resp):
             cls._LOGGER.error(f'Got response {resp_code[0]:0{2}X} while expected was {expected_resp:0{2}X}')
@@ -91,13 +96,17 @@ class BoardUtilities:
             ser.reset_input_buffer()
             return None
         
-        if cls._checksum_calculator(resp_code + resp_data) != 0:
+        if cls.command_checksum_calculator(resp_code + resp_data) != 0:
             cls._LOGGER.error(f'Command has wrong checksum')
             ser.reset_input_buffer()
             return None            
         
         return resp_data[:-1] # Avoid returning the checksum
 
-    @classmethod
-    def _checksum_calculator(cls, data: bytes) -> int: 
+    @staticmethod
+    def command_checksum_calculator(data: bytes) -> int: 
         return reduce(operator.sub, bytes([0, *data])) & 0xFF
+    
+    @staticmethod
+    def cxfer_checksum_calculator(data: bytes) -> int: 
+        return reduce(operator.add, bytes([0, *data])) & 0xFFFF
