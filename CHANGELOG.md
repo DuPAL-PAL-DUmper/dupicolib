@@ -7,7 +7,7 @@ Changelog for dupicolib
 
 ## [0.4.2] - 2024-08-18
 ### Added
-- Added pin '0' toboard pin translation map to indicate an 'NC' pin
+- Added pin '0' to board pin translation map to indicate an 'NC' pin
 
 ## [0.4.1] - 2024-08-15
 ### Added
