@@ -82,9 +82,17 @@ class BoardUtilities:
         if resp_data_len <= 0:
             cls._LOGGER.debug(f'Sending command {cmd}, ignoring any response.')
             return None
+        else:
+            cls._LOGGER.debug(f'Sending command {cmd}, expecting a response of length {resp_data_len}.')
+
 
         expected_resp = cmd[0] | cls.BINARY_COMMAND_RESPONSE_FLAG
         resp_code: bytes = ser.read(1)
+        if (len(resp_code) == 0):
+            cls._LOGGER.error(f'Got a zero-length response')
+            ser.reset_input_buffer()
+            return None
+
         if (len(resp_code) != 1 or resp_code[0] != expected_resp):
             cls._LOGGER.error(f'Got response {resp_code[0]:0{2}X} while expected was {expected_resp:0{2}X}')
             ser.reset_input_buffer()

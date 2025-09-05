@@ -1,6 +1,10 @@
 # Changelog
 Changelog for dupicolib
 
+## [0.5.1] - 2025-09-05
+### Changed
+- Verbose debug now prints commands sent to the board
+
 ## [0.5.0] - 2024-09-02
 ### Added
 - Support for CXFER read mode
